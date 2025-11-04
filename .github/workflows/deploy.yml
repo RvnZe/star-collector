@@ -18,9 +18,6 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
-        run: npm install
-
       - name: Build project
         env:
           JSONBIN_API_KEY: ${{ secrets.JSONBIN_API_KEY }}
@@ -29,7 +26,6 @@ jobs:
           mkdir -p dist
           cp index.html dist/index.html
           cp game.js dist/game.js
-          # Gantikan placeholder dengan secrets agar key tidak tampil di kode
           sed -i "s|process.env.JSONBIN_BIN_ID|\"${{ secrets.JSONBIN_BIN_ID }}\"|g" dist/game.js
           sed -i "s|process.env.JSONBIN_API_KEY|\"${{ secrets.JSONBIN_API_KEY }}\"|g" dist/game.js
 
