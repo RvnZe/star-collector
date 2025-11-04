@@ -3,7 +3,7 @@ const API_BASE = "/api"; // serverless proxy
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-const player = { x: 150, y: 400, size: 25, speed: 6, dx: 0 };
+const player = { x: 150, y: 400, size: 25, speed: 6, glow: 0 };
 const stars = [];
 const enemies = [];
 let score = 0;
@@ -12,13 +12,17 @@ let frame = 0;
 let levelThreshold = 100;
 let spawnRate = 60;
 let playerName = "Player";
-
 let gameRunning = false;
 
 // Input handling
 const keys = {};
 document.addEventListener("keydown", e => { keys[e.key] = true; });
 document.addEventListener("keyup", e => { keys[e.key] = false; });
+
+// DOM Elements
+const gameOverOverlay = document.getElementById("gameOverOverlay");
+const finalScoreEl = document.getElementById("finalScore");
+const restartBtn = document.getElementById("restartBtn");
 
 // Leaderboard
 export async function loadLeaderboard() {
@@ -56,13 +60,12 @@ function renderLeaderboard(scores){
 }
 
 // Spawn helpers
-function spawnStar(){ stars.push({ x: Math.random()*(canvas.width-15), y:0, size:10 }); }
+function spawnStar(){ stars.push({ x: Math.random()*(canvas.width-15), y:0, size:10, flicker:Math.random() }); }
 function spawnEnemy(){ enemies.push({ x: Math.random()*(canvas.width-25), y:0, size:20 }); }
 
 // Game loop
 function update(){
   if(!gameRunning) return;
-
   frame++;
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
@@ -71,21 +74,26 @@ function update(){
   if(keys["ArrowRight"]) player.x += player.speed;
   player.x = Math.max(0, Math.min(player.x, canvas.width - player.size));
 
-  // Draw player
+  // Draw player with glow effect
   ctx.fillStyle = "#ffd166";
+  ctx.shadowColor = "#fbbf24";
+  ctx.shadowBlur = player.glow;
   ctx.fillRect(player.x,player.y,player.size,player.size);
+  ctx.shadowBlur = 0;
+  if(player.glow>0) player.glow -=0.5; // fade glow
 
   // Stars
   if(frame % 35 === 0) spawnStar();
   for(let s of [...stars]){
     s.y += 2 + level*0.2;
-    ctx.fillStyle = "#16a34a";
+    ctx.fillStyle = `rgba(21,163,84,${0.5+0.5*Math.sin(s.flicker*frame*0.1)})`;
     ctx.beginPath();
     ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
     ctx.fill();
     if(Math.abs(s.x-player.x)<player.size && Math.abs(s.y-player.y)<player.size){
       score +=10;
       stars.splice(stars.indexOf(s),1);
+      player.glow = 15; // glow feedback
     } else if(s.y > canvas.height) stars.splice(stars.indexOf(s),1);
   }
 
@@ -111,24 +119,33 @@ function update(){
   document.getElementById("score").innerText = score;
   document.getElementById("level").innerText = level;
 
+  // Level progress bar
+  const progress = Math.min(100, (score / levelThreshold)*100);
+  document.getElementById("levelProgress").style.width = progress + "%";
+
   requestAnimationFrame(update);
 }
 
 // End game overlay
 function endGame(){
   gameRunning = false;
-  document.getElementById("gameCanvas").style.opacity = "0.5";
-  document.getElementById("hud").innerHTML += " | GAME OVER!";
+  finalScoreEl.innerText = score;
+  gameOverOverlay.style.display = "flex";
   saveScore(playerName, score);
-  score = 0; level = 1; enemies.length=0; stars.length=0; levelThreshold=100; spawnRate=60;
 }
+
+// Restart button
+restartBtn.addEventListener("click", ()=>{
+  gameOverOverlay.style.display = "none";
+  score=0; level=1; frame=0; levelThreshold=100; spawnRate=60;
+  enemies.length=0; stars.length=0;
+  document.getElementById("score").innerText=score;
+  document.getElementById("level").innerText=level;
+  player.glow = 0;
+  gameRunning = true;
+  update();
+});
 
 // Start game
-export function startGame(){
-  gameRunning = true;
-  document.getElementById("gameCanvas").style.opacity = "1";
-  update();
-}
-
-// Set player name
-export function setPlayerName(name){ playerName = name; }
+export function startGame(){ gameRunning = true; update(); }
+export function setPlayerName(name){ playerName=name; }
