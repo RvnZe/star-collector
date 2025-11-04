@@ -2,8 +2,9 @@
   "name": "star-collector",
   "version": "1.0.0",
   "scripts": {
-  "build": "node build.js"
+  "build": "mkdir -p dist && cp index.html dist/index.html && cp -r game.js dist/"
 }
+
 ,
   "dependencies": {
     "dotenv": "^16.0.0"
