@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
@@ -28,12 +28,13 @@ jobs:
           cp style.css dist/style.css
           cp -r assets dist/assets
           cp game.js dist/game.js
-          # Inject secrets into game.js if needed
+          # Inject secrets into game.js
           sed -i "s|process.env.JSONBIN_BIN_ID|\"${{ secrets.JSONBIN_BIN_ID }}\"|g" dist/game.js
           sed -i "s|process.env.JSONBIN_API_KEY|\"${{ secrets.JSONBIN_API_KEY }}\"|g" dist/game.js
 
       - name: Deploy to GitHub Pages
-  uses: peaceiris/actions-gh-pages@v4
-  with:
-    personal_token: ${{ secrets.GH_PAT }}
-    publish_dir: ./dist
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
