@@ -25,6 +25,8 @@ jobs:
         run: |
           mkdir -p dist
           cp index.html dist/index.html
+          cp style.css dist/style.css
+          cp -r assets dist/assets
           cp game.js dist/game.js
           sed -i "s|process.env.JSONBIN_BIN_ID|\"${{ secrets.JSONBIN_BIN_ID }}\"|g" dist/game.js
           sed -i "s|process.env.JSONBIN_API_KEY|\"${{ secrets.JSONBIN_API_KEY }}\"|g" dist/game.js
