@@ -27,8 +27,8 @@ const restartBtn = document.getElementById("restartBtn");
 
 // Sound effects
 const sfxStar = new Audio("assets/star.wav");
-const sfxGameOver = new Audio("assets/gameover.wav");
-const sfxLevelUp = new Audio("assets/levelup.wav");
+const sfxGameOver = new Audio("assets/gameover.mp3");
+const sfxLevelUp = new Audio("assets/levelup.,p3");
 sfxStar.volume = 0.2; sfxGameOver.volume = 0.3; sfxLevelUp.volume = 0.2;
 
 // Leaderboard
