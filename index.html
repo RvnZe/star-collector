@@ -15,13 +15,13 @@
   <button id="playBtn">Play</button>
 </div>
 
-<div id="gameArea">
+<div id="gameArea" style="display:none;">
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+
   <div id="hud">
     <span>Score: <span id="score">0</span> | Level: <span id="level">1</span></span>
     <div id="progressBar"><div id="levelProgress"></div></div>
   </div>
-
-  <div id="gameField"></div>
 
   <div id="gameOverOverlay">
     <div>💥 GAME OVER! 💥</div>
@@ -49,7 +49,7 @@ const playerInput = document.getElementById("playerName");
 const startScreen = document.getElementById("startScreen");
 const gameArea = document.getElementById("gameArea");
 
-playBtn.addEventListener("click", ()=>{
+playBtn.addEventListener("click", ()=> {
   const name = playerInput.value.trim();
   if(!name){ alert("Masukkan nama player!"); return; }
   setPlayerName(name);
