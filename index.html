@@ -1,19 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Star Collector</title>
-  <style>
-    body { font-family: sans-serif; text-align: center; background: #1e293b; color: #fff; }
-    canvas { background: #0f172a; display: block; margin: 20px auto; border: 2px solid #fff; }
-    #hud { margin: 10px; }
-    table { margin: 10px auto; border-collapse: collapse; width: 60%; color: #fff; }
-    table, th, td { border: 1px solid #fff; padding: 5px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Star Collector</title>
+<style>
+  body { font-family: sans-serif; text-align: center; background: #1e293b; color: #fff; }
+  #gameArea { display: none; }
+  canvas { background: #0f172a; display: block; margin: 20px auto; border: 2px solid #fff; }
+  #hud { margin: 10px; }
+  table { margin: 10px auto; border-collapse: collapse; width: 60%; color: #fff; }
+  table, th, td { border: 1px solid #fff; padding: 5px; }
+  input, button { padding: 5px; font-size: 16px; margin: 5px; }
+</style>
 </head>
 <body>
-  <h1>Star Collector</h1>
+
+<h1>Star Collector</h1>
+
+<div id="startScreen">
+  <input type="text" id="playerName" placeholder="Masukkan nama Anda">
+  <button id="playBtn">Play</button>
+</div>
+
+<div id="gameArea">
   <div id="hud">
     Score: <span id="score">0</span> | Level: <span id="level">1</span>
   </div>
@@ -25,15 +35,26 @@
     </thead>
     <tbody></tbody>
   </table>
+</div>
 
-  <script type="module">
-    import { startGame, loadLeaderboard } from "./game.js";
+<script type="module">
+  import { startGame, loadLeaderboard, setPlayerName } from "./game.js";
 
+  const playBtn = document.getElementById("playBtn");
+  const playerInput = document.getElementById("playerName");
+  const startScreen = document.getElementById("startScreen");
+  const gameArea = document.getElementById("gameArea");
+
+  playBtn.addEventListener("click", () => {
+    const name = playerInput.value.trim();
+    if(!name) { alert("Masukkan nama player!"); return; }
+    setPlayerName(name);
+    startScreen.style.display = "none";
+    gameArea.style.display = "block";
     startGame();
+    loadLeaderboard().then(() => document.getElementById("loading").style.display = "none");
+  });
+</script>
 
-    loadLeaderboard().then(() => {
-      document.getElementById("loading").style.display = "none";
-    });
-  </script>
 </body>
 </html>
