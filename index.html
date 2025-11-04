@@ -11,7 +11,7 @@
 <h1>⭐ Star Collector ⭐</h1>
 
 <div id="startScreen">
-  <input type="text" id="playerName" placeholder="Masukkan nama Anda">
+  <input type="text" id="playerNameInput" placeholder="Masukkan nama Anda">
   <button id="playBtn">Play</button>
 </div>
 
@@ -24,9 +24,11 @@
   <canvas id="gameCanvas" width="360" height="500"></canvas>
 
   <div id="gameOverOverlay">
-    <div>💥 GAME OVER! 💥</div>
-    <div>Score: <span id="finalScore">0</span></div>
-    <button id="restartBtn">Main Lagi</button>
+    <div class="overlayContent">
+      💥 GAME OVER! 💥<br>
+      Score: <span id="finalScore">0</span><br>
+      <button id="restartBtn">Main Lagi</button>
+    </div>
   </div>
 
   <div id="loading">Loading leaderboard...</div>
@@ -42,7 +44,7 @@
 <script type="module">
 import { startGame, loadLeaderboard, setPlayerName } from "./game.js";
 const playBtn = document.getElementById("playBtn");
-const playerInput = document.getElementById("playerName");
+const playerInput = document.getElementById("playerNameInput");
 const startScreen = document.getElementById("startScreen");
 const gameArea = document.getElementById("gameArea");
 
@@ -50,8 +52,8 @@ playBtn.addEventListener("click", ()=>{
   const name = playerInput.value.trim();
   if(!name){ alert("Masukkan nama player!"); return; }
   setPlayerName(name);
-  startScreen.style.display = "none";
-  gameArea.style.display = "block";
+  startScreen.style.display="none";
+  gameArea.style.display="block";
   startGame();
   loadLeaderboard().then(()=>document.getElementById("loading").style.display="none");
 });

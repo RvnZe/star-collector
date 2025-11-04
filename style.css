@@ -93,6 +93,34 @@ canvas{
   align-items:center;
   justify-content:center;
   animation:fadeIn 0.5s ease-in;
+  z-index:10;
+}
+.overlayContent{
+  text-align:center;
+  background:#1e293b;
+  padding:20px 30px;
+  border-radius:12px;
+  box-shadow:0 0 15px #fbbf24;
+}
+#restartBtn{
+  margin-top:15px;
+  padding:10px 20px;
+  font-size:16px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  background:#fbbf24;
+  color:#0f172a;
+  font-weight:bold;
+  transition:0.2s;
+}
+#restartBtn:hover{
+  background:#ffd166;
+  transform: scale(1.05);
+}
+#loading{
+  margin-top:10px;
+  font-size:16px;
 }
 @keyframes fadeIn{
   from{opacity:0;}
