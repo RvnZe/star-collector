@@ -2,9 +2,9 @@
   "name": "star-collector",
   "version": "1.0.0",
   "scripts": {
-    "build": "cp index.html dist/index.html && cp -r game.js dist/",
-    "deploy": "npm run build && gh-pages -d dist"
-  },
+  "build": "node build.js"
+}
+,
   "dependencies": {
     "dotenv": "^16.0.0"
   },
