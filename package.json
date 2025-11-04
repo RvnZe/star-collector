@@ -1,0 +1,14 @@
+{
+  "name": "star-collector",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cp index.html dist/index.html && cp -r game.js dist/",
+    "deploy": "npm run build && gh-pages -d dist"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "gh-pages": "^5.0.0"
+  }
+}
