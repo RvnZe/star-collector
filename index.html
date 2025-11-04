@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Star Collector</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0f172a;
+      color: white;
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #gameCanvas {
+      background: radial-gradient(circle at center, #1e293b, #0f172a);
+      border: 2px solid #ffd166;
+      border-radius: 12px;
+      display: block;
+    }
+    #hud {
+      display: flex;
+      justify-content: space-between;
+      width: 320px;
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+    #leaderboard {
+      margin-top: 20px;
+      text-align: center;
+    }
+    table {
+      border-collapse: collapse;
+      margin: auto;
+      color: #fff;
+    }
+    td, th {
+      padding: 5px 10px;
+      border: 1px solid #444;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="320" height="480"></canvas>
+  <div id="hud">
+    <div>Score: <span id="score">0</span></div>
+    <div>Level: <span id="level">1</span></div>
+  </div>
+  <div id="leaderboard">
+    <h3>🏆 Leaderboard</h3>
+    <table id="board"><tbody></tbody></table>
+  </div>
+
+  <!-- Firebase setup -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
+    import { getDatabase, ref, push, get } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js';
+
+    // Ganti dengan konfigurasi Firebase Anda
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_DOMAIN",
+      databaseURL: "YOUR_DATABASE_URL",
+      projectId: "YOUR_PROJECT_ID",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    async function saveScore(name, score) {
+      await push(ref(db, 'scores/'), { name, score, time: Date.now() });
+    }
+
+    async function loadLeaderboard() {
+      const snap = await get(ref(db, 'scores/'));
+      const data = snap.val();
+      const sorted = Object.values(data || {}).sort((a,b)=>b.score - a.score).slice(0,10);
+      const tbody = document.querySelector("#board tbody");
+      tbody.innerHTML = "";
+      sorted.forEach((s, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${i+1}</td><td>${s.name}</td><td>${s.score}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Game logic
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const player = { x: 150, y: 400, size: 20, speed: 5 };
+    const stars = [];
+    const enemies = [];
+    let score = 0;
+    let level = 1;
+    let levelThreshold = 100;
+    let spawnRate = 60;
+    let frame = 0;
+    let name = prompt("Masukkan nama Anda:", "Player");
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" && player.x > 0) player.x -= player.speed;
+      if (e.key === "ArrowRight" && player.x < canvas.width - player.size) player.x += player.speed;
+    });
+
+    function spawnStar() {
+      stars.push({ x: Math.random() * 300, y: 0, size: 10 });
+    }
+
+    function spawnEnemy() {
+      enemies.push({ x: Math.random() * 300, y: 0, size: 20 });
+    }
+
+    function update() {
+      frame++;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw player
+      ctx.fillStyle = "#ffd166";
+      ctx.fillRect(player.x, player.y, player.size, player.size);
+
+      // Stars
+      if (frame % 40 === 0) spawnStar();
+      for (let s of stars) {
+        s.y += 2;
+        ctx.fillStyle = "#16a34a";
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Collision
+        if (Math.abs(s.x - player.x) < 20 && Math.abs(s.y - player.y) < 20) {
+          score += 10;
+          stars.splice(stars.indexOf(s), 1);
+        }
+      }
+
+      // Enemies
+      if (frame % spawnRate === 0) spawnEnemy();
+      for (let e of enemies) {
+        e.y += 3 + level;
+        ctx.fillStyle = "#ef4444";
+        ctx.fillRect(e.x, e.y, e.size, e.size);
+
+        if (Math.abs(e.x - player.x) < 20 && Math.abs(e.y - player.y) < 20) {
+          alert(`Game Over! Skor Anda: ${score}`);
+          saveScore(name, score);
+          score = 0;
+          level = 1;
+          enemies.length = 0;
+          stars.length = 0;
+          levelThreshold = 100;
+        }
+      }
+
+      // Level up
+      if (score >= levelThreshold) {
+        level++;
+        levelThreshold += 100;
+        spawnRate = Math.max(20, spawnRate - 5);
+      }
+
+      // HUD
+      document.getElementById("score").innerText = score;
+      document.getElementById("level").innerText = level;
+
+      requestAnimationFrame(update);
+    }
+
+    update();
+    loadLeaderboard();
+  </script>
+</body>
+</html>
